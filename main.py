@@ -3,16 +3,25 @@ import pandas as pd
 from tabulate import tabulate
 
 #####NEXT TIME ######
-#Just keep creating more useful functions that we can add to the table
-#Display menu to select after that??#
-#Get real data into a CSV somehow after that to use for next NBA year# 
+
+#Work on cleaning up the CSV without manual intervention - Got the adding location in line 22, need something to delete the last line from the csv as well
+#And then also something to make the CSV auto upload to the correct destination for us to use/ able to use script parameters to use it for another player 
+#Clean up script comments and add comments where needed
+
+#Look into updating win loss function to be able to get point differential and not just win or loss
+
+#Get more realistic data into a CSV somehow after that to use for next NBA year# 
 
 #input("Enter to continue:") #Add this wherever to add a pause for testing
 
 #Upload CSV 
 #df is for dataframe and is the standard that pandas uses
 
-df = pd.read_csv('michael-jordan-nba-career-regular-season-stats-by-game.csv') # Make sure the file is in the same directory or give full path
+#df = pd.read_csv('michael-jordan-nba-career-regular-season-stats-by-game.csv') # Make sure the file is in the same directory or give full path
+df = pd.read_csv('sportsref_download.csv') # Make sure the file is in the same directory or give full path
+#Renames blank column to location to get home vs away games
+if '' in df.columns:
+    df.rename(columns={'': 'Location'}, inplace=True)
 
 team = input("Enter the team abbreviation you want to analyze: ").strip().upper()
 
@@ -32,27 +41,9 @@ def column_avg(df, column_name):
     if column_name not in df.columns:
         raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
     
-    return df[column_name].mean()
-
-'''
-
-#Free Throws Made Average All Time
-ovr_avg_ft = column_avg(df, 'FT')
-print(f"Average of the FT column: {ovr_avg_ft}")
-
-#Free Throws Attempted Average All Time
-ovr_avg_fta = column_avg(df, 'FTA')
-print(f"Average of the FTA column: {ovr_avg_fta}")
-
-'''
-
-      
-#Write how to get the amount of times a certain number occurs --- Function
-
-
-
-#Write how to get the amount of times a team occurs and get the averages for that --- Function
-
+    #return df[column_name].mean()
+    # Convert to numeric, ignore non-numeric values
+    return pd.to_numeric(df[column_name], errors='coerce').mean()
 
 #Losses vs a certain team
 
@@ -65,35 +56,36 @@ def losses_by_team(df, team):
         return 0
 
     # Count where Win == 0
-    total_losses = (filtered['Win'] == 0).sum()
+    #total_losses = (filtered['Win'] == 0).sum()
+    total_losses = filtered['Result'].str.startswith('L').sum()
     return int(total_losses)
 
 
 
 def losses_by_team_home(df, team):
     # Filter games against the specified team
-    filtered = df[(df['Opp'] == team) & (df['Home'] == 1)]
+    filtered = df[(df['Opp'] == team) & (df['Location'] != '@')]
 
     if filtered.empty:
         print(f"No games found against team '{team}'.")
         return 0
 
     # Count where Win == 0
-    home_losses = (filtered['Win'] == 0).sum()
+    home_losses = filtered['Result'].str.startswith('L').sum()
     return int(home_losses)
 
 
 
 def losses_by_team_away(df, team):
     # Filter games against the specified team
-    filtered = df[(df['Opp'] == team) & (df['Home'] == 0)]
+    filtered = df[(df['Opp'] == team) & (df['Location'] == '@')]
 
     if filtered.empty:
         print(f"No games found against team '{team}'.")
         return 0
 
     # Count where Win == 0
-    away_losses = (filtered['Win'] == 0).sum()
+    away_losses = filtered['Result'].str.startswith('L').sum()
     return int(away_losses)
 
 '''
@@ -118,7 +110,7 @@ def wins_by_team(df, team):
         return 0
 
     # Sum the 'Win' column in filtered rows to count wins
-    total_wins = filtered['Win'].sum()
+    total_wins = filtered['Result'].str.startswith('W').sum()
 
     return total_wins
 
@@ -127,14 +119,14 @@ def wins_by_team(df, team):
 
 def wins_by_team_home(df, team):
     # Filter rows where 'Opp' equals the target team
-    filtered = df[(df['Opp'] == team) & (df['Home'] == 1)]
+    filtered = df[(df['Opp'] == team) & (df['Location'] != '@')]
 
     if filtered.empty:
         print(f"No games found against team '{team}'.")
         return 0
 
     # Sum the 'Win' column in filtered rows to count wins
-    home_wins = filtered['Win'].sum()
+    home_wins = filtered['Result'].str.startswith('W').sum()
 
     return home_wins
 
@@ -142,14 +134,14 @@ def wins_by_team_home(df, team):
 
 def wins_by_team_away(df, team):
     # Filter rows where 'Opp' equals the target team
-    filtered = df[(df['Opp'] == team) & (df['Home'] == 0)]
+    filtered = df[(df['Opp'] == team) & (df['Location'] == '@')]
 
     if filtered.empty:
         print(f"No games found against team '{team}'.")
         return 0
 
     # Sum the 'Win' column in filtered rows to count wins
-    away_wins = filtered['Win'].sum()
+    away_wins = filtered['Result'].str.startswith('W').sum()
 
     return away_wins
 
@@ -201,7 +193,7 @@ def get_avg_vs_1_team(df, column_avg, team):
         print(f"No games found against team '{team}'.")
         return
 
-    skip_columns = ['EndYear', 'Rk', 'G', 'Date', 'Years', 'Days', 'Age', 'Tm', 'Home', 'Opp', 'Win', 'GS']
+    skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'MP', 'FG%', '3P%', '2P%', 'eFG%', 'FT%' 'GmSc', '+/-']
 
     averages = {}
     for column in filtered_df.columns:
@@ -223,7 +215,8 @@ def get_avg_vs_1_team(df, column_avg, team):
 #Prints total averages for the stats
 def get_ovr_averages(df, column_avg):
 
-    skip_columns = ['EndYear', 'Rk', 'G', 'Date', 'Years', 'Days', 'Age', 'Tm', 'Home', 'Opp', 'Win', 'GS', ] #List the columns you want to skip over here
+    #skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'GmSc', '+/-']
+    skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'MP', 'FG%', '3P%', '2P%', 'eFG%', 'FT%' 'GmSc', '+/-']
     for column in df.columns:
         if column in skip_columns:
             continue  # Skip this iteration, move to next column
@@ -257,7 +250,7 @@ def column_max(df, column_name):
     if column_name not in df.columns:
         raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
     
-    return df[column_name].max()
+    return pd.to_numeric(df[column_name], errors='coerce').max()
 
 
 
@@ -270,7 +263,8 @@ def get_column_maxes(df, column_max,team):
     if filtered_df.empty:
         print(f"No games found against team '{team}'.")
         return {}
-    skip_columns = ['EndYear', 'Rk', 'G', 'Date', 'Years', 'Days', 'Age', 'Tm', 'Home', 'Opp', 'Win', 'GS', ] #List the columns you want to skip over here
+    #skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'GmSc', '+/-']
+    skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'MP', 'FG%', '3P%', '2P%', 'eFG%', 'FT%' 'GmSc', '+/-']
     
     maxes = {}
     for column in df.columns:
@@ -294,7 +288,7 @@ def column_min(df, column_name):
     if column_name not in df.columns:
         raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
     
-    return df[column_name].min()
+    return pd.to_numeric(df[column_name], errors='coerce').min()
 
 
 
@@ -307,8 +301,8 @@ def get_column_minimums(df, column_min,team):
     if filtered_df.empty:
         print(f"No games found against team '{team}'.")
         return {}
-    skip_columns = ['EndYear', 'Rk', 'G', 'Date', 'Years', 'Days', 'Age', 'Tm', 'Home', 'Opp', 'Win', 'GS', ] #List the columns you want to skip over here
-    
+    #skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'GmSc', '+/-'] #List the columns you want to skip over here
+    skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'MP', 'FG%', '3P%', '2P%', 'eFG%', 'FT%' 'GmSc', '+/-']
     minimums = {}
     for column in df.columns:
         if column in skip_columns:
@@ -319,6 +313,8 @@ def get_column_minimums(df, column_min,team):
 
 #Example
 #get_ovr_averages()
+
+
 def print_graph(df, column_avg, team):
     overall_avgs = get_ovr_averages(df, column_avg)
     team_avgs = get_avg_vs_1_team(df, column_avg, team)
@@ -327,7 +323,7 @@ def print_graph(df, column_avg, team):
     if not team_avgs:
         return  # No data for team, just exit
     
-    ovr_record = record_vs_team(wins_by_team, losses_by_team, team)  # get record string like "5 - 3"
+    ovr_record = record_vs_team(wins_by_team, losses_by_team, team)  # This works and the column is correct
     home_record = home_record_vs_team(wins_by_team_home, losses_by_team_home, team)  # get record string like "5 - 3"
     away_record = away_record_vs_team(wins_by_team_away, losses_by_team_away, team)  # get record string like "5 - 3"
 
