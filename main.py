@@ -1,7 +1,7 @@
 #Import Libraries
 import pandas as pd
 from tabulate import tabulate
-
+import plotly.graph_objects as go
 #####NEXT TIME ######
 #Clean up script comments and add comments where needed to make sure I fully understand the script
 #Add some other features to it and other more in depth functions?
@@ -235,6 +235,7 @@ def get_column_minimums(df, column_min,team):
         minimums[column] = column_min(df, column)
     return minimums
 
+
 #Prints the graph to view --- Eventually can make this into a different display if needed
 def print_graph(df, column_avg, team):
     overall_avgs = get_ovr_averages(df, column_avg)
@@ -260,3 +261,42 @@ def print_graph(df, column_avg, team):
     print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
 #Example
 print_graph(df, column_avg, team) #Prints Overall AVG, Team Against Average, Record against team, max and min against specific team, home and away record against that team
+
+
+#Plots a bar graph that opens in the browser to view
+def plotly_graph(df, column_avg, team):
+    #Same logic as console output
+    overall_avgs = get_ovr_averages(df, column_avg)
+    team_avgs = get_avg_vs_1_team(df, column_avg, team)
+    maximum = get_column_maxes(df, column_max, team)
+    minimum = get_column_minimums(df, column_min, team)
+    ovr_record = record_vs_team(wins_by_team, losses_by_team, team)  # Gets ovr record
+    home_record = home_record_vs_team(wins_by_team_home, losses_by_team_home, team)  # get home record like "5 - 3" for example
+    away_record = away_record_vs_team(wins_by_team_away, losses_by_team_away, team)  # get away record in a string "5 - 3" for example
+
+    exclude_columns = ["Gcar", "Gtm", "GmSc", "Location", "Opp", "Result"] #Excludes these columns for the graph
+    stats = [stat for stat in overall_avgs.keys() if stat not in exclude_columns]
+    
+    fig = go.Figure(data=[
+        go.Bar(name='Overall Avg', x=stats, y=[overall_avgs.get(stat, 999) for stat in stats]),
+        go.Bar(name=f'{team} Avg', x=stats, y=[team_avgs.get(stat, 999) for stat in stats]),
+        go.Bar(name=f'Max vs {team}', x=stats, y=[maximum.get(stat, 999) for stat in stats]),
+        go.Bar(name=f'Min vs {team}', x=stats, y=[minimum.get(stat, 999) for stat in stats]),
+       # go.Bar(name='Overall Record', x=stats, y=[ovr_record.get(stat, 999) for stat in stats]),
+       # go.Bar(name='Home Record', x=stats, y=[home_record.get(stat, 999) for stat in stats]),
+       # go.Bar(name='Away Record', x=stats, y=[away_record.get(stat, 999) for stat in stats]),
+    ])
+
+    fig.update_layout(
+        title=f'Performance Comparison vs {team} Record: Overall Record: {ovr_record} Home Record: {home_record} Away Record: {away_record}',
+        xaxis_title='Stat',
+        yaxis_title='Value',
+        yaxis=dict(dtick=5), # Y Axis increments by 5
+        barmode='group'
+    )
+
+    fig.show()
+    
+plotly_graph(df,column_avg, team)
+
+
