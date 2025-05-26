@@ -1,14 +1,16 @@
 #Import Libraries
 import pandas as pd
 from tabulate import tabulate
-import os
 
 #####NEXT TIME ######
 #Clean up script comments and add comments where needed to make sure I fully understand the script
-#Add some other features to it and other more in depth functions? 
+#Add some other features to it and other more in depth functions?
 
+#Steps to import multiple xls files from basketballreference.com
+#My GitHub example is set up for Anthony Edwards stats --- https://www.basketball-reference.com/players/e/edwaran01.html
 
-#Only run when you have a new player and new need files --- Will have to manually rename files to be csv and not xls
+#Only run when you have a new player and new need files --- Will have to manually rename and save files to be csv and not xls files
+#After that uncomment the below lines to get the new file to use
 # List your Excel filenames
 
 
@@ -21,17 +23,15 @@ import os
 #print("CSV files combined and saved as sportsref_combined.csv in your Downloads folder.")
 
 
-
+#Reads the CSV
 df = pd.read_csv('sportsref_combined.csv') # Make sure the file is in the same directory or give full path
 #Renames blank column to location to get home vs away games
-if 'Unnamed: 5' in df.columns:
+if 'Unnamed: 5' in df.columns: #After combining the files from above the column to get whether it is an away game or not is labeled as this and we will change it to location
     df.rename(columns={'Unnamed: 5': 'Location'}, inplace=True)
 
 
 #Global team variable to use in functions
 team = input("Enter the team abbreviation you want to analyze: ").strip().upper()
-
-#Write how to get the averages for each column that has integers (Overall averages)  --- Function
 
 #Calculates the average of a column
 def column_avg(df, column_name):
@@ -39,7 +39,7 @@ def column_avg(df, column_name):
     if column_name not in df.columns:
         raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
     
-    # Convert to numeric, ignore non-numeric values
+    # Convert to numeric, ignore non-numeric values and replaces non numeric values with NaN
     return pd.to_numeric(df[column_name], errors='coerce').mean()
 
 #Gets the losses against one team
@@ -69,7 +69,7 @@ def losses_by_team_home(df, team):
     return int(home_losses)
 
 
-
+#Gets the losses for away games only
 def losses_by_team_away(df, team):
     # Filter games against the specified team for away games
     filtered = df[(df['Opp'] == team) & (df['Location'] == '@')]
@@ -127,34 +127,25 @@ def wins_by_team_away(df, team):
 
 #Gets record against a team
 def record_vs_team(wins_by_team, losses_by_team, team):
-    #team = input("Enter the team abbreviation you want a record against for: ")
     wins = wins_by_team(df, team)
     losses = losses_by_team(df , team)
     return f"{wins} - {losses}"
-    #record = f"{wins} - {losses}"  # This is the correct f-string
-    #print(f"Record vs {team}: {record}")
+    
     
 #Gets away record against 1 team
 def away_record_vs_team(wins_by_team_away, losses_by_team_away, team):
-    #team = input("Enter the team abbreviation you want a record against for: ")
     wins = wins_by_team_away(df, team)
     losses = losses_by_team_away(df , team)
     return f"{wins} - {losses}"
-    #record = f"{wins} - {losses}"  # This is the correct f-string
-    #print(f"Record vs {team}: {record}")
     
 #Gets home record against 1 tean
 def home_record_vs_team(wins_by_team_home, losses_by_team_home, team):
-    #team = input("Enter the team abbreviation you want a record against for: ")
     wins = wins_by_team_home(df, team)
     losses = losses_by_team_home(df , team)
     return f"{wins} - {losses}"
-    #record = f"{wins} - {losses}"  # This is the correct f-string
-    #print(f"Record vs {team}: {record}")
 
 #Gets average stats against 1 team only
 def get_avg_vs_1_team(df, column_avg, team):
-    #team = input("Enter the team abbreviation to calculate averages against: ")
     filtered_df = df[df['Opp'] == team]
 
     if filtered_df.empty:
@@ -174,15 +165,13 @@ def get_avg_vs_1_team(df, column_avg, team):
 #Gets the overall averages for the csv file
 def get_ovr_averages(df, column_avg):
 
-    #skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'GmSc', '+/-']
+    
     skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'MP', 'FG%', '3P%', '2P%', 'eFG%', 'FT%' 'GmSc', '+/-']
     for column in df.columns:
         if column in skip_columns:
             continue  # Skip this iteration, move to next column
-        #average = column_avg(df,column)
-       # print(f"Overall Average of {column}: {average:.2f}")
         
-        averages = {} #Empty dictionary
+        averages = {} #Empty dictionary to store overall averages
     for column in df.columns:
         if column in skip_columns:
             continue
@@ -211,7 +200,6 @@ def get_column_maxes(df, column_max,team):
     if filtered_df.empty:
         print(f"No games found against team '{team}'.")
         return {}
-    #skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'GmSc', '+/-']
     skip_columns = ['Rk', 'Gcar' 'Gtm', 'Date', 'Team', 'GS', 'MP', 'FG%', '3P%', '2P%', 'eFG%', 'FT%' 'GmSc', '+/-']
     
     maxes = {}
@@ -256,9 +244,9 @@ def print_graph(df, column_avg, team):
     if not team_avgs:
         return  # No data for team, just exit
     
-    ovr_record = record_vs_team(wins_by_team, losses_by_team, team)  # This works and the column is correct
-    home_record = home_record_vs_team(wins_by_team_home, losses_by_team_home, team)  # get record string like "5 - 3"
-    away_record = away_record_vs_team(wins_by_team_away, losses_by_team_away, team)  # get record string like "5 - 3"
+    ovr_record = record_vs_team(wins_by_team, losses_by_team, team)  # Gets ovr record
+    home_record = home_record_vs_team(wins_by_team_home, losses_by_team_home, team)  # get home record like "5 - 3" for example
+    away_record = away_record_vs_team(wins_by_team_away, losses_by_team_away, team)  # get away record in a string "5 - 3" for example
 
     table_data = []
     for stat in overall_avgs:
@@ -271,4 +259,4 @@ def print_graph(df, column_avg, team):
     headers = ["Stat", "Overall Avg", f"{team} Avg", "Maximum", "Minimum" ,"Overall Record", "Home Record", "Away Record"]
     print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
 #Example
-print_graph(df, column_avg, team) #Prints Overall AVG, Team Against Average, Record against team, max and min against specific team
+print_graph(df, column_avg, team) #Prints Overall AVG, Team Against Average, Record against team, max and min against specific team, home and away record against that team
