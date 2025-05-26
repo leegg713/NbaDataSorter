@@ -5,6 +5,8 @@ Used for Practice Sorting Data with Python and SQL
 
 ### First Steps ###
 
+https://plotly.com/python/text-and-annotations/
+
 Get it to work for just Python, will be a good task to learn functions, loops, etc in Python. 
 
 #Steps and Functions#
