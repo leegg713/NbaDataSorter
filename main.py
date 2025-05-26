@@ -2,9 +2,6 @@
 import pandas as pd
 from tabulate import tabulate
 import plotly.graph_objects as go
-#####NEXT TIME ######
-#Clean up script comments and add comments where needed to make sure I fully understand the script
-#Add some other features to it and other more in depth functions?
 
 #Steps to import multiple xls files from basketballreference.com
 #My GitHub example is set up for Anthony Edwards stats --- https://www.basketball-reference.com/players/e/edwaran01.html
@@ -21,7 +18,6 @@ import plotly.graph_objects as go
 #combined.to_csv(r"C:\Users\leeme\Downloads\sportsref_combined.csv", index=False)
 
 #print("CSV files combined and saved as sportsref_combined.csv in your Downloads folder.")
-
 
 #Reads the CSV
 df = pd.read_csv('sportsref_combined.csv') # Make sure the file is in the same directory or give full path
