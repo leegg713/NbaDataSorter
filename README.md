@@ -25,9 +25,9 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. **Combine CSV Files**
+1. **Combine CSV Files (Need to be done manually if using multiple different files)**
 
-   Place your raw CSV files in your chosen directory (e.g. `Downloads`). Then run:
+   Place your raw CSV file in your chosen directory (e.g. `Downloads`). Then run:
 
    ```bash
    python main.py
