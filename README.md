@@ -1,50 +1,70 @@
-# NbaDataSorter
+# NBA Data Sorter
 
-# DataSorter
-Used for Practice Sorting Data with Python and SQL
+A Python project for analyzing and visualizing NBA player performance. This script combines multiple CSVs of game data, computes player averages, and displays results in both terminal tables and interactive graphs.
 
-### First Steps ###
+## Features
 
-https://plotly.com/python/text-and-annotations/
+- Combine multiple CSV data files into one
+- Calculate overall and per-team stats, including averages, maximums, and minimums
+- Display results as formatted tables in the terminal (using `tabulate`)
+- Generate interactive bar charts with Plotly
+- Filter out unwanted columns and handle zero values correctly in graphs
 
-Get it to work for just Python, will be a good task to learn functions, loops, etc in Python. 
+## Requirements
 
-#Steps and Functions#
+- Python 3.7 or higher
+- [pandas](https://pandas.pydata.org/)
+- [tabulate](https://pypi.org/project/tabulate/)
+- [plotly](https://plotly.com/python/)
 
-1. Find a dataset to use for data manipulation, the more columns and data the better and save this file locally
-2. Set up file structure for this project (Python file and Excel file??) - May just need python file
-3. Do different types of SQL and Python sorts using Pandas (Example: Top 10 prices, Last 10 days, First 10 items, etc)
-4. Graph it??
-5. Read the Excel file in Python (using Pandas).
+Install dependencies with:
 
-Store the data in a SQL database (e.g., SQLite, which is built into Python).
+```bash
+pip install -r requirements.txt
+```
 
-Use SQL to query and sort the data.
+## Usage
 
-(Optional) Export the sorted data back to Excel.
+1. **Combine CSV Files**
 
+   Place your raw CSV files in your chosen directory (e.g. `Downloads`). Then run:
 
-Example: import pandas as pd
-import sqlite3
+   ```bash
+   python main.py
+   ```
 
-# Step 1: Load Excel file
-df = pd.read_excel('your_file.xlsx')  # Make sure the file is in the same directory or give full path
+   The script will combine them into a new file, e.g. `sportsref_combined.csv`.
 
-# Step 2: Connect to SQLite (in-memory or file-based)
-conn = sqlite3.connect(':memory:')  # Use ':memory:' for temporary DB or 'your_db.db' for a file
-df.to_sql('data_table', conn, index=False, if_exists='replace')
+2. **Analyze Data**
 
-# Step 3: Query and sort using SQL
+   The script will load the combined CSV and allow you to analyze statistics versus specific teams. Example table and graph functions are included so you can just press run on the script:
 
-#Can use multiple queries just comment out the ones you do not want to use -- This will be good SQL Practice
-query = '''
-SELECT * FROM data_table
-ORDER BY Age ASC, Name ASC  -- Replace with your actual column names and use different queries
-'''
-sorted_df = pd.read_sql_query(query, conn)
+   ```python
+   print_graph(df, column_avg, team)      # Prints stats table in terminal
+   plotly_graph(df, column_avg, column_max, column_min, team)  # Shows interactive bar chart
+   ```
 
-# Step 4: Export to new Excel file
-sorted_df.to_excel('sorted_output.xlsx', index=False)
+   - Set `team` to the team name you want to analyze. --- When running the script you will be asked for input
+   - Adjust `column_avg`, `column_max`, and `column_min` lists to include the stats you care about. --- If you need to limit the output for some reason
 
-# Cleanup
-conn.close()
+3. **Configure Exclusions**
+
+   To exclude columns from the graph, add their names to the `exclude_cols` list in the script at the bottom
+
+## Customization
+
+- **Change columns**: Update `column_avg`, `column_max`, and `column_min` in your script to match your CSV columns. (Should not be needed if getting CSVs from BasketballReference.com)
+- **Exclude columns**: Add unwanted column names to the `exclude_cols` list.
+- **Y-Axis Scale**: Set `dtick=5` in the Plotly layout to adjust y-axis increments. --- 5 should work but can adjust if needed
+
+## File Structure
+
+```
+nba-data-sorter/
+├── main.py
+├── requirements.txt
+├── sportsref_combined.csv --- This will need to be your CSV from BasketballReference.com, etc,
+└── README.md
+```
+**Questions or suggestions?**  
+Feel free to open an issue or submit a pull request with me as this is one of my first Python projects and I would love to improve it!
