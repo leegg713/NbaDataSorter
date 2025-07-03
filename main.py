@@ -8,9 +8,9 @@ import plotly.graph_objects as go
 
 #Only run when you have a new player and new need files --- Will have to manually rename and save files to be csv and not xls files
 #After that uncomment the below lines to get the new file to use
-# List your Excel filenames
+# List your Excel filenames below
 
-
+#Example
 #filenames = [r"C:\Users\leeme\Downloads\sportsref_download (1).csv", r"C:\Users\leeme\Downloads\sportsref_download (2).csv", r"C:\Users\leeme\Downloads\sportsref_download (3).csv", r"C:\Users\leeme\Downloads\sportsref_download (4).csv", r"C:\Users\leeme\Downloads\sportsref_download (5).csv"]
 
 #dfs = [pd.read_csv(fname) for fname in filenames]
@@ -20,7 +20,7 @@ import plotly.graph_objects as go
 #print("CSV files combined and saved as sportsref_combined.csv in your Downloads folder.")
 
 #Reads the CSV
-df = pd.read_csv('sportsref_combined.csv') # Make sure the file is in the same directory or give full path
+df = pd.read_csv('sportsref_combined.csv') # Make sure the file is in your GitHub repo or where you are running the script from locally
 #Renames blank column to location to get home vs away games
 if 'Unnamed: 5' in df.columns: #After combining the files from above the column to get whether it is an away game or not is labeled as this and we will change it to location
     df.rename(columns={'Unnamed: 5': 'Location'}, inplace=True)
@@ -260,6 +260,7 @@ print_graph(df, column_avg, team) #Prints Overall AVG, Team Against Average, Rec
 
 
 #Plots a bar graph that opens in the browser to view
+'''
 def plotly_graph(df, column_avg, team):
     #Same logic as console output
     overall_avgs = get_ovr_averages(df, column_avg)
@@ -294,5 +295,5 @@ def plotly_graph(df, column_avg, team):
     fig.show()
     
 plotly_graph(df,column_avg, team)
-
+'''
 
