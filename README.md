@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 3. **Configure Exclusions**
 
-   To exclude columns from the graph, add their names to the `exclude_cols` list in the script at the bottom
+   To exclude additional columns from the graph, add their names to the `exclude_cols` list in the script at the bottom
 
 ## Customization
 
